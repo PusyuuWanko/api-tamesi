@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>震度速報</title>
+</head>
+<body>
+    <h1 id="title"></h1>
+    <p id="status"></p>
+    <p id="editorialOffice"></p>
+    <p id="publishingOffice"></p>
+    <h2 id="headline"></h2>
+    <p id="observation"></p>
+    <ul id="prefList"></ul>
+    <p id="comments"></p>
+
+    <img width="50%" height="auto" id="dogImage" src="" alt="犬の画像">
+
+    <script>
+
+// JSONデータを外部ファイルから読み込む
+fetch('https://dev.narikakun.net/webapi/earthquake/last/%E9%9C%87%E5%BA%A6%E9%80%9F%E5%A0%B1.json')
+    .then(response => response.json())
+    .then(data => {
+        // 必要な情報を取得してHTMLに表示
+        document.getElementById('title').textContent = data.Control.Title;
+        document.getElementById('status').textContent = 'Status: ' + data.Control.Status;
+        document.getElementById('editorialOffice').textContent = 'Editorial Office: ' + data.Control.EditorialOffice;
+        document.getElementById('publishingOffice').textContent = 'Publishing Office: ' + data.Control.PublishingOffice;
+        document.getElementById('headline').textContent = data.Head.Headline;
+        document.getElementById('observation').textContent = 'Observation: Max Intensity ' + data.Body.Intensity.Observation.MaxInt;
+
+        // 地域ごとの震度情報を取得
+        const prefList = document.getElementById('prefList');
+        data.Body.Intensity.Observation.Pref.forEach(pref => {
+            const prefItem = document.createElement('li');
+            prefItem.textContent = `${pref.Name}: Max Intensity ${pref.MaxInt}`;
+            prefList.appendChild(prefItem);
+        });
+
+        document.getElementById('comments').textContent = data.Body.Comments.Observation;
+    })
+    .catch(error => console.error('Error:', error));
+
+
+document.addEventListener("DOMContentLoaded", function() {
+    // JSONデータのURL
+    const jsonUrl = "https://dog.ceo/api/breeds/image/random";
+
+    // 画像要素の取得
+    const dogImage = document.getElementById("dogImage");
+
+    // JSONデータを取得し、画像要素のsrcに設定する
+    fetch(jsonUrl)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "success") {
+                dogImage.src = data.message;
+            } else {
+                console.error("画像の取得に失敗しました。");
+            }
+        })
+        .catch(error => {
+            console.error("エラーが発生しました。", error);
+        });
+});
+
+    </script>
+</body>
+</html>
