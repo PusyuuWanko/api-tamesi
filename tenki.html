@@ -1,0 +1,58 @@
+<!DOUTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>test</title>
+</head>
+<body>
+
+<div id="weather-container"></div>
+
+<script>
+// ユーザーの位置情報を取得
+if ("geolocation" in navigator) {
+  navigator.geolocation.getCurrentPosition(function (position) {
+    const latitude = position.coords.latitude;
+    const longitude = position.coords.longitude;
+
+    // Open-MeteoAPIのURLに位置情報を組み込む
+    const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m,relativehumidity_2m,dewpoint_2m,apparent_temperature,precipitation_probability,precipitation,rain,showers,snowfall,snow_depth,uv_index,uv_index_clear_sky,cape,freezinglevel_height`;
+
+    // APIリクエストを送信して天気情報を取得
+    fetch(apiUrl)
+      .then(response => response.json())
+      .then(data => {
+        // 天気情報を処理して表示する関数を呼び出す
+        displayWeatherData(data);
+      })
+      .catch(error => {
+        console.error("データの取得に失敗しました:", error);
+      });
+  });
+} else {
+  console.error("位置情報を取得できません。");
+}
+function displayWeatherData(data) {
+  // 必要なデータを取得
+  const temperature = data.hourly.temperature_2m[0];
+  const relativeHumidity = data.hourly.relativehumidity_2m[0];
+  const dewpoint = data.hourly.dewpoint_2m[0];
+  const apparentTemperature = data.hourly.apparent_temperature[0];
+  const precipitationProbability = data.hourly.precipitation_probability[0];
+  const precipitation = data.hourly.precipitation[0];
+
+  // HTMLにデータを表示
+  const weatherContainer = document.getElementById("weather-container");
+  weatherContainer.innerHTML = `
+    <h1>天気情報</h1>
+    <p>気温: ${temperature}°C</p>
+    <p>湿度: ${relativeHumidity}%</p>
+    <p>露点: ${dewpoint}°C</p>
+    <p>体感温度: ${apparentTemperature}°C</p>
+    <p>降水確率: ${precipitationProbability}%</p>
+    <p>降水量: ${precipitation}mm</p>
+  `;
+}
+</script>
+</body>
+</html>
